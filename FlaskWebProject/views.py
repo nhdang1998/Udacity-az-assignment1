@@ -21,20 +21,7 @@ imageSourceUrl = 'https://'+ app.config['BLOB_ACCOUNT']  + '.blob.core.windows.n
 @app.route('/')
 @app.route('/home')
 @login_required
-def home():
-    
-    log = request.values.get('log_button')
-    
-    if log:
-        if log == 'info':
-            app.logger.info('No issue.')
-        elif log == 'warning':
-            app.logger.warning('Warning occurred.')
-        elif log == 'error':
-            app.logger.error('Error occurred.')
-        elif log == 'critical':
-            app.logger.critical('Critical error occurred.')
-            
+def home():        
     user = User.query.filter_by(username=current_user.username).first_or_404()
     posts = Post.query.all()
     return render_template(
@@ -92,6 +79,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
+            app.logger.info('Invalid login attempt')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -119,14 +107,12 @@ def authorized():
         if "error" in result:
             return render_template("auth_error.html", result=result)
         
-        print(result.get("id_token_claims"))
         session["user"] = result.get("id_token_claims")
         # Note: In a real app, we'd use the 'name' property from session["user"] below
         # Here, we'll use the admin username for anyone who is authenticated by MS
         user = User.query.filter_by(username="admin").first()
-        print(user)
         login_user(user)
-        print('LOGIN DONE')
+        app.logger.info('admin logged in successfully')
         _save_cache(cache)
     return redirect(url_for('home'))
 
