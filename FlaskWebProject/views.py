@@ -13,6 +13,8 @@ from flask_login import current_user, login_user, logout_user, login_required
 from FlaskWebProject.models import User, Post
 import msal
 import uuid
+import pyodbc
+from flask import Flask
 
 imageSourceUrl = 'https://'+ app.config['BLOB_ACCOUNT']  + '.blob.core.windows.net/' + app.config['BLOB_CONTAINER']  + '/'
 
@@ -20,6 +22,19 @@ imageSourceUrl = 'https://'+ app.config['BLOB_ACCOUNT']  + '.blob.core.windows.n
 @app.route('/home')
 @login_required
 def home():
+    
+    log = request.values.get('log_button')
+    
+    if log:
+        if log == 'info':
+            app.logger.info('No issue.')
+        elif log == 'warning':
+            app.logger.warning('Warning occurred.')
+        elif log == 'error':
+            app.logger.error('Error occurred.')
+        elif log == 'critical':
+            app.logger.critical('Critical error occurred.')
+            
     user = User.query.filter_by(username=current_user.username).first_or_404()
     posts = Post.query.all()
     return render_template(
@@ -63,6 +78,15 @@ def post(id):
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
+    # try:
+    #     conn = pyodbc.connect(app.config['SQL_CONN_STR'])
+    #     cursor = conn.cursor()
+    #     cursor.execute("SELECT @@version;")
+    #     row = cursor.fetchone()
+    #     return f"Connected to SQL Server: {row[0]}"
+    # except pyodbc.Error as e:
+    #     return f"Failed to connect to SQL Server: {str(e)}"
+    
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -86,19 +110,23 @@ def authorized():
         return render_template("auth_error.html", result=request.args)
     if request.args.get('code'):
         cache = _load_cache()
-        result = _build_msal_app( cache=cache).acquire_token_by_authorization_code(
-            request.args.get('code'),
+        result = _build_msal_app(cache=cache).acquire_token_by_authorization_code(
+            request.args['code'],
             scopes=Config.SCOPE,
             redirect_uri=url_for('authorized', _external=True, _scheme='https')
         )
         
         if "error" in result:
             return render_template("auth_error.html", result=result)
+        
+        print(result.get("id_token_claims"))
         session["user"] = result.get("id_token_claims")
         # Note: In a real app, we'd use the 'name' property from session["user"] below
         # Here, we'll use the admin username for anyone who is authenticated by MS
         user = User.query.filter_by(username="admin").first()
+        print(user)
         login_user(user)
+        print('LOGIN DONE')
         _save_cache(cache)
     return redirect(url_for('home'))
 
@@ -130,12 +158,12 @@ def _build_msal_app(cache=None, authority=None):
         client_id=Config.CLIENT_ID,
         client_credential=Config.CLIENT_SECRET,
         authority=authority or Config.AUTHORITY,
-        token_cache=cache, 
+        token_cache=cache
     )
 
 def _build_auth_url(authority=None, scopes=None, state=None):
-    return _build_msal_app( authority=authority ).get_authorization_request_url(
-        scopes,
-        state=state or 'default_state',
+    return _build_msal_app(authority=authority).get_authorization_request_url(
+        scopes or [],
+        state=state or str(uuid.uuid4()),
         redirect_uri=url_for('authorized', _external=True, _scheme='https')
     )

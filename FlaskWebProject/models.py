@@ -8,7 +8,8 @@ from werkzeug.utils import secure_filename
 from flask import flash
 
 blob_container = app.config['BLOB_CONTAINER']
-blob_service = BlobServiceClient(account_url=app.config['BLOB_ACCOUNT'], credential=app.config['BLOB_STORAGE_KEY'])
+storage_url = "https://{}.blob.core.windows.net/".format(app.config['BLOB_ACCOUNT'])
+blob_service = BlobServiceClient(account_url=storage_url, credential=app.config['BLOB_STORAGE_KEY'])
 
 def id_generator(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -57,9 +58,11 @@ class Post(db.Model):
             Randomfilename = id_generator();
             filename = Randomfilename + '.' + fileextension;
             try:
-                blob_service.create_blob_from_stream(blob_container, filename, file)
-                if(self.image_path):
-                    blob_service.delete_blob(blob_container, self.image_path)
+                blob_client = blob_service.get_blob_client(container=blob_container, blob=filename)
+                blob_client.upload_blob(file)
+                if self.image_path: # Get rid of old image, since it's replaced
+                    blob_client = blob_service.get_blob_client(container=blob_container, blob=self.image_path)
+                    blob_client.delete_blob()
             except Exception:
                 flash(Exception)
             self.image_path =  filename

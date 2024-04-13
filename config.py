@@ -5,18 +5,19 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret-key'
 
-    BLOB_ACCOUNT = os.environ.get('BLOB_ACCOUNT') or 'https://flaskprojectstorageacc.blob.core.windows.net'
+    BLOB_ACCOUNT = os.environ.get('BLOB_ACCOUNT') or 'flaskprojectstorageacc'
     BLOB_STORAGE_KEY = os.environ.get('BLOB_STORAGE_KEY') or '+KovSEeA0VsBFzLxMtyWYf8+Gcy7//4G67xbccDm8qPDwQHcNuQrQ5ahDqw40CPN4MWkLsOPlmAe+AStCci9AQ=='
     BLOB_CONTAINER = os.environ.get('BLOB_CONTAINER') or 'flaskprojectcontainer'
 
+    SQL_DRIVER = '{ODBC Driver 17 for SQL Server}' 
     SQL_SERVER = os.environ.get('SQL_SERVER') or 'flask-project-server.database.windows.net'
     SQL_DATABASE = os.environ.get('SQL_DATABASE') or 'flask-project-db'
     SQL_USER_NAME = os.environ.get('SQL_USER_NAME') or 'dang-adm'
-    SQL_PASSWORD = os.environ.get('SQL_PASSWORD') or 'Matkhaula@001'
+    SQL_PASSWORD = os.environ.get('SQL_PASSWORD') or 'Matkhaula_001'
     # Below URI may need some adjustments for driver version, based on your OS, if running locally
     SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://' + SQL_USER_NAME + '@' + SQL_SERVER + ':' + SQL_PASSWORD + '@' + SQL_SERVER + ':1433/' + SQL_DATABASE  + '?driver=ODBC+Driver+17+for+SQL+Server'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    SQL_CONN_STR = f'DRIVER={SQL_DRIVER};SERVER={SQL_SERVER};DATABASE={SQL_DATABASE};UID={SQL_USER_NAME};PWD={SQL_PASSWORD}'
     ### Info for MS Authentication ###
     ### As adapted from: https://github.com/Azure-Samples/ms-identity-python-webapp ###
     CLIENT_SECRET = "AuU8Q~AcAzIXAitv1Na9l7WwfE4MFq6JRCmCQc6v"
