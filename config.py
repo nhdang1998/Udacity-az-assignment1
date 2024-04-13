@@ -5,14 +5,14 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret-key'
 
-    BLOB_ACCOUNT = os.environ.get('BLOB_ACCOUNT') or 'ENTER_STORAGE_ACCOUNT_NAME'
-    BLOB_STORAGE_KEY = os.environ.get('BLOB_STORAGE_KEY') or 'ENTER_BLOB_STORAGE_KEY'
-    BLOB_CONTAINER = os.environ.get('BLOB_CONTAINER') or 'ENTER_IMAGES_CONTAINER_NAME'
+    BLOB_ACCOUNT = os.environ.get('BLOB_ACCOUNT') or 'https://flaskprojectstorageacc.blob.core.windows.net'
+    BLOB_STORAGE_KEY = os.environ.get('BLOB_STORAGE_KEY') or '+KovSEeA0VsBFzLxMtyWYf8+Gcy7//4G67xbccDm8qPDwQHcNuQrQ5ahDqw40CPN4MWkLsOPlmAe+AStCci9AQ=='
+    BLOB_CONTAINER = os.environ.get('BLOB_CONTAINER') or 'flaskprojectcontainer'
 
-    SQL_SERVER = os.environ.get('SQL_SERVER') or 'ENTER_SQL_SERVER_NAME.database.windows.net'
-    SQL_DATABASE = os.environ.get('SQL_DATABASE') or 'ENTER_SQL_DB_NAME'
-    SQL_USER_NAME = os.environ.get('SQL_USER_NAME') or 'ENTER_SQL_SERVER_USERNAME'
-    SQL_PASSWORD = os.environ.get('SQL_PASSWORD') or 'ENTER_SQL_SERVER_PASSWORD'
+    SQL_SERVER = os.environ.get('SQL_SERVER') or 'flask-project-server.database.windows.net'
+    SQL_DATABASE = os.environ.get('SQL_DATABASE') or 'flask-project-db'
+    SQL_USER_NAME = os.environ.get('SQL_USER_NAME') or 'dang-adm'
+    SQL_PASSWORD = os.environ.get('SQL_PASSWORD') or 'Matkhaula@001'
     # Below URI may need some adjustments for driver version, based on your OS, if running locally
     SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://' + SQL_USER_NAME + '@' + SQL_SERVER + ':' + SQL_PASSWORD + '@' + SQL_SERVER + ':1433/' + SQL_DATABASE  + '?driver=ODBC+Driver+17+for+SQL+Server'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
